@@ -46,6 +46,8 @@ void Stone::init(int idx)
 
 void Stone::draw(QPainter &p, int d, bool selected)
 {
+    if(_dead)return;
+
     QPoint center = pos(d);
 
     p.setPen(QPen(Qt::black, 2));
