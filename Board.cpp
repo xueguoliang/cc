@@ -1,11 +1,11 @@
 #include "Board.h"
 #include <QMouseEvent>
 #include <QDebug>
-Board::Board(QWidget *parent) : QWidget(parent)
+#include <QApplication>
+
+Board::Board(QWidget *parent) : QWidget(parent), _ai(*this)
 {
     startGame();
-
-
 }
 
 Board::~Board()
@@ -235,8 +235,13 @@ void Board::tryMoveStone(QPoint pt)
     }
 }
 
-bool Board::canMoveJiang(int moveid, int row, int col, int )
+bool Board::canMoveJiang(int moveid, int row, int col, int killid)
 {
+    if(killid != -1 && _stone[killid].type() == Stone::JIANG)
+    {
+        return canMoveChe(moveid, row, col, killid);
+    }
+
     if(col<3||col>5)return false;
     if(row >2 && row<7) return false;
 
@@ -388,6 +393,19 @@ int Board::getStoneCount(int row1, int col1, int row2, int col2)
 
 void Board::moveStone(int moveid, int row, int col, int killid)
 {
+    fakeMove(moveid, row, col, killid);
+    update();
+
+    if(this->_bRedTurn == false)
+    {
+        qApp->processEvents();
+        Step step = _ai.getStep(5);
+        moveStone(step._moveid, step._rowTo, step._colTo, step._killid);
+    }
+}
+
+void Board::fakeMove(int moveid, int row, int col, int killid)
+{
     if(killid != -1)
         _stone[killid].setDead(true);
 
@@ -397,7 +415,21 @@ void Board::moveStone(int moveid, int row, int col, int killid)
     setRowCol(moveid, row, col);
     _selectId = -1;
     _bRedTurn = !_bRedTurn;
-    update();
+}
+
+void Board::unfakeMove(int moveid, int row, int col, int killid)
+{
+    if(killid != -1)
+    {
+        _stone[killid].setDead(false);
+    }
+
+    _ids[r(moveid)][c(moveid)] = killid;
+    _ids[row][col] = moveid;
+
+    setRowCol(moveid, row, col);
+    _selectId = -1;
+    _bRedTurn = !_bRedTurn;
 }
 
 QPoint Board::c1(int row, int col)

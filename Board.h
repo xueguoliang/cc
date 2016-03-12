@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include "Stone.h"
+#include "AI.h"
 
 class Board : public QWidget
 {
@@ -18,6 +19,8 @@ public:
     bool _bRedTurn;
     int _selectId;
     int _ids[10][9];
+
+    AI _ai;
 
     QPoint _ori;
     int _d;
@@ -56,6 +59,9 @@ public:
     int getStoneCount(int row1, int col1, int row2, int col2);
 
     void moveStone(int moveid, int row, int col, int killid);
+
+    void fakeMove(int moveid, int row, int col, int killid);
+    void unfakeMove(int moveid, int row, int col, int killid);
 
     QPoint c1(int row, int col);
     bool t1(QPoint pt, int&row, int& col);
