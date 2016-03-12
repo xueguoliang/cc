@@ -12,6 +12,8 @@ public:
     explicit Board(QWidget *parent = 0);
     ~Board();
 
+
+
     void startGame();
     void initChess();
 

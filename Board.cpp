@@ -1,6 +1,7 @@
 #include "Board.h"
 #include <QMouseEvent>
 #include <QDebug>
+#include <QTimer>
 #include <QApplication>
 
 Board::Board(QWidget *parent) : QWidget(parent), _ai(*this)
@@ -398,9 +399,10 @@ void Board::moveStone(int moveid, int row, int col, int killid)
 
     if(this->_bRedTurn == false)
     {
-        qApp->processEvents();
-        Step step = _ai.getStep(5);
-        moveStone(step._moveid, step._rowTo, step._colTo, step._killid);
+        QTimer::singleShot(50, [&](){
+            Step step = _ai.getStep(6);
+            moveStone(step._moveid, step._rowTo, step._colTo, step._killid);
+        });
     }
 }
 

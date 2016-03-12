@@ -1,7 +1,7 @@
 #include "AI.h"
 #include "Board.h"
 
-/* 32个棋子的得分表 */
+/* 棋子的得分表 */
 static int score[7][10][9] =
 {
     /* 将 */
@@ -221,6 +221,17 @@ int AI::getMinScore(int level, int cut)
     return curMinScore;
 }
 
+int AI::getStoneScore(int idx)
+{
+    if(idx == -1)
+        return 0;
+
+    if(idx < 16)
+        return score[_board._stone[idx].type()][_board.r(idx)][_board.c(idx)];
+
+    return score[_board._stone[idx].type()][9-_board.r(idx)][8-_board.c(idx)];
+}
+
 int AI::eval()
 {
     int bScore = 0;
@@ -265,8 +276,17 @@ void AI::testMove(Steps &steps, Stone &stone, QPoint pts[], int count)
             step->_colFrom = stone.col();
             step->_rowTo = pt.x();
             step->_colTo = pt.y();
+            step->_killScore = getStoneScore(aimId);
 
-            steps.append(step);
+            /* 应该找地方插入 */
+            auto it=steps.begin();
+            for(; it!=steps.end(); ++it)
+            {
+                Step* pos = *it;
+                if(step->_killScore > pos->_killScore)
+                    break;
+            }
+            steps.insert(it, step);
         }
     }
 }
