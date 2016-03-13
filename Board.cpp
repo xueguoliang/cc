@@ -20,6 +20,8 @@ void Board::startGame()
     for(int j=0; j<9; ++j)
         _ids[i][j] = -1;
 
+    _ai._curEval = 0;
+
     initChess();
     _bRedTurn = true;
     _selectId = -1;
@@ -394,22 +396,57 @@ int Board::getStoneCount(int row1, int col1, int row2, int col2)
 
 void Board::moveStone(int moveid, int row, int col, int killid)
 {
-    fakeMove(moveid, row, col, killid);
+    int killScore = this->_ai.getStoneScore(killid, r(killid), c(killid));
+
+    fakeMove(moveid, row, col, killid, killScore);
     update();
+
+    checkGameOver();
+
 
     if(this->_bRedTurn == false)
     {
+        // 学习，纪录当前局面，也就是对方走完之后的局面
+        // 然后把id纪录下来
+        // 最后结束之后给打分
         QTimer::singleShot(50, [&](){
             Step step = _ai.getStep(6);
             moveStone(step._moveid, step._rowTo, step._colTo, step._killid);
+            checkGameOver();
         });
     }
 }
 
-void Board::fakeMove(int moveid, int row, int col, int killid)
+void Board::checkGameOver()
+{
+    if(_ai.BlackWin())
+    {
+        // 所有局面减一分
+        startGame();
+    }
+    if(_ai.RedWin())
+    {
+        // 所有局面加一分
+        startGame();
+    }
+}
+
+void Board::fakeMove(int moveid, int row, int col, int killid, int moveScore)
 {
     if(killid != -1)
+    {
         _stone[killid].setDead(true);
+    }
+
+    // 如果红旗移动，那么红旗得到的分会导致局面分下降，因为局面分以黑棋为基准
+    if(isRed(moveid))
+    {
+        _ai._curEval -= moveScore;
+    }
+    else
+    {
+        _ai._curEval += moveScore;
+    }
 
     _ids[r(moveid)][c(moveid)] = -1;
     _ids[row][col] = moveid;
@@ -419,8 +456,17 @@ void Board::fakeMove(int moveid, int row, int col, int killid)
     _bRedTurn = !_bRedTurn;
 }
 
-void Board::unfakeMove(int moveid, int row, int col, int killid)
+void Board::unfakeMove(int moveid, int row, int col, int killid, int moveScore)
 {
+    if(isRed(moveid))
+    {
+        _ai._curEval += moveScore;
+    }
+    else
+    {
+        _ai._curEval -= moveScore;
+    }
+
     if(killid != -1)
     {
         _stone[killid].setDead(false);

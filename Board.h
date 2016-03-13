@@ -5,14 +5,14 @@
 #include "Stone.h"
 #include "AI.h"
 
+// cmpjsxbCMPJSXB
+
 class Board : public QWidget
 {
     Q_OBJECT
 public:
     explicit Board(QWidget *parent = 0);
     ~Board();
-
-
 
     void startGame();
     void initChess();
@@ -61,9 +61,10 @@ public:
     int getStoneCount(int row1, int col1, int row2, int col2);
 
     void moveStone(int moveid, int row, int col, int killid);
+    void checkGameOver();
 
-    void fakeMove(int moveid, int row, int col, int killid);
-    void unfakeMove(int moveid, int row, int col, int killid);
+    void fakeMove(int moveid, int row, int col, int killid, int moveScore);
+    void unfakeMove(int moveid, int row, int col, int killid, int moveScore);
 
     QPoint c1(int row, int col);
     bool t1(QPoint pt, int&row, int& col);
@@ -74,8 +75,6 @@ public:
         _stone[id].setRow(row);
         _stone[id].setCol(col);
     }
-
-
 signals:
 
 public slots:

@@ -17,7 +17,7 @@ public:
     int _rowTo;
     int _colFrom;
     int _colTo;
-    int _killScore;
+    int _moveScore;
 };
 
 class Steps : public QList<Step*>
@@ -41,11 +41,14 @@ public:
 
     Board& _board;
 
+    int _curEval;
+
     Step getStep(int level);
     int getMaxScore(int level, int cut);
     int getMinScore(int level, int cut);
 
-    int getStoneScore(int idx);
+    int getStoneScore(int idx, int row, int col);
+    int getMoveScore(int moveid, int row, int col, int killid);
 
     int eval();
     void getAllPossibleMoveJiang(Steps&, Stone&);
