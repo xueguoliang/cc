@@ -1,0 +1,16 @@
+*.zip
+*.d
+*.so
+*.o
+*.bin
+.vimtagsdisplay
+tags
+xs.config
+xs.creator
+xs.files
+xs.includes
+*.creator.user
+*.pro.user
+build-*-Desktop-Debug
+*Makefile
+*moc_*.cpp
